@@ -13,8 +13,7 @@ public class Raycast3D extends Application {
     private final int screen_height = 500;
     private final int column_width = 5;
     private final double fov = Math.PI / 2;
-    //wasd
-    private final int[] keys = {0,0,0,0};
+    private final int[] keys = {0,0,0,0}; //WASD
     private float v = 0.05f;
     private float x = 1;
     private float y = 1;
@@ -29,7 +28,7 @@ public class Raycast3D extends Application {
     
     @Override
     public void start(Stage stage) {
-        stage.setTitle("Raycast3D");
+        stage.setTitle("Raycast3D [Use WASD To Move]");
         
         Group root = new Group();
         Scene s = new Scene(root, screen_width, screen_height, Color.BLACK);
@@ -68,9 +67,9 @@ public class Raycast3D extends Application {
             {1,0,0,0,0,0,2,0,3,0,0,3,0,2,0,1},
             {1,0,0,0,0,0,2,0,3,0,3,3,0,2,2,1},
             {1,0,0,0,0,0,0,0,0,0,0,2,0,0,0,1},
-            {1,0,0,0,0,0,0,0,0,0,0,2,0,2,0,1},
-            {1,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1},
-            {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+            {1,0,0,0,0,0,0,0,0,0,0,2,0,1,0,1},
+            {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1},
+            {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1},
             {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         };
         
@@ -88,6 +87,7 @@ public class Raycast3D extends Application {
                     y -= v*Math.sin(dir);
                 }
                 
+                //return to previous position if collided with wall
                 if (map[(int)y][(int)x] != 0) {
                     x = prev_x;
                     y = prev_y;
@@ -96,7 +96,7 @@ public class Raycast3D extends Application {
                 if (keys[1] == 1) dir -= v;
                 else if (keys[3] == 1) dir += v;
                 
-                gc.setFill(Color.BLACK);
+                //draw background: floor and ceiling
                 gc.fillRect(0, 0, screen_width, screen_height);
                 for (int i = screen_height/2; i <= screen_height; i+=column_width) {
                     float p = 0.75f - 3*((float)i - screen_height/2) / screen_height/2;
@@ -106,6 +106,7 @@ public class Raycast3D extends Application {
                     gc.fillRect(0, screen_height/2 - (i - screen_height/2), screen_width, column_width);
                 }
 
+                //loop through each column of the field of view
                 for (int col = 0; col < screen_width/column_width; col++) {
                     double ray_angle = dir - fov/2.0 + (col*(float)column_width/(float)screen_width)*fov;
                     float distance_to_wall = 0;
@@ -124,11 +125,14 @@ public class Raycast3D extends Application {
                     
                     //fish eye correction
                     distance_to_wall = (float) (distance_to_wall*Math.cos(Math.abs(dir - ray_angle)));
+                    
+                    //draw a single column of wall
                     float ceiling_height = screen_height / 2 - screen_height/distance_to_wall;
                     gc.setFill(adjust_color(wall_color[wall_type], distance_to_wall/10));
                     gc.fillRect(col*column_width, ceiling_height, column_width, screen_height - 2*ceiling_height);
                 }
-                //draw mini map
+                
+                //draw map
                 gc.setFill(map_color);
                 for (int i = 0; i < map.length; ++i) {
                     for (int j = 0; j < map[0].length; ++j) {
@@ -137,6 +141,7 @@ public class Raycast3D extends Application {
                         }
                     }
                 }
+                
                 gc.setFill(Color.rgb(127, 47, 47, 0.5));
                 //3 Points for a triangle pointed forward
                 double[] poly_x = new double[]{10+x*15, 10+x*15-5, 10+x*15+5};
@@ -155,7 +160,7 @@ public class Raycast3D extends Application {
         
     }
     
-    //p is the amount of adjustment. p=1 for black, p=0 for no change
+    //Make a color darker; p=1 for black, p=0 for no change
     private Color adjust_color(Color base, float p) {
         p = p > 1 ? 1 : p;
         return Color.rgb((int)(255*base.getRed()*(1-p)), (int)(255*base.getGreen()*(1-p)), (int)(255*base.getBlue()*(1-p)));
