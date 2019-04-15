@@ -4,9 +4,9 @@ In the early days of computer hardware, game developers had to use clever techni
 
 My implementation uses three properties to simulate depth: the relative height of the walls, the darkness of the color of the walls, and the color gradients on the floor and ceiling.
 
-The algorithm begins with a 2D map of the area. This is as simple as a matrix of integers denoting empty space as `0` and different colored walls `1, 2, and 3`.
-
-![Alt Text](https://github.com/SkylerRankin/Raycast3D/blob/master/res/map.PNG)
+The algorithm begins with a 2D map of the area. This is as simple as a matrix of integers denoting empty space with `0` and different colored walls with `1, 2, and 3`.
+<br>
+<img src="https://github.com/SkylerRankin/Raycast3D/blob/master/res/map.PNG" width="300"/>
 
 We then split the field of view into columns of equal width. Here we use a field of view of `90 degrees`, and `200` columns of width `5` pixels. Then, at each frame, for each of these columns, we calculate the angle between looking straight ahead and looking directly at that column. This is done on the 2D map of the environment. We can then follow that direction until the first non-zero cell is hit, and record that distance. With the distance for each column recorded, we can set the vertical height of the wall in that column to be larger if the distance was small, and smaller if the distance was large.
 
